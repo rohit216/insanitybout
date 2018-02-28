@@ -56,7 +56,7 @@
 <h2> <p><center> Make your payment with us </center> </p></h2>
 <div class="container-fluid">
     <div><a href ="UserDetails.php"> <button class="btn btn-primary" align="right"> User Details </button> </a></div>
-<form class="form-inline" name ="barclays" method="post" action="processTransaction.php" onSubmit="return validateField();">
+<form class="form-inline" name ="barclays" method="post" action="processTransaction.php" onSubmit="return validateField()">
 <fieldset id="fieldset">
 <legend> Online Transaction </legend>
 <table border="0.5" style="align: center;">
@@ -100,7 +100,7 @@
 
 </tr>
 <tr>
-<td> </td> <td> <br> <button class="btn btn-success" type="submit" name="submit" value="Submit"> Submit  <br></td>
+<td> </td> <td> <br> <button class="btn btn-success" type="submit" name="submit" value="Submit"> Submit <br></td>
 </tr>
 
 </fieldset>

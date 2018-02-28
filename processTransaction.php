@@ -89,7 +89,7 @@ if(isset($_POST['submit'])){
         }
         else
         {
-            print "<script> alert('Something went wrong');
+            print "<script>
             location.href = 'index.php';</script>";
             //header('location: failure.php');
         } 
