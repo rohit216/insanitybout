@@ -25,26 +25,29 @@
 <script>
     function validateField()
     {
+	Console.log('Entered');
         var amount = document.getElementsByName("amount");
         if(isNaN(amount)) {
             
             return false;
         } 
+	Console.log('Entered');
         amount = parseInt();
         if(amount < 0) {
             return false;
         }
-        
+        Console.log('Entered');
         var accountNum =  document.getElementsByName("fromAccount");
         if (!/[^a-zA-Z]/.test(word)) {
             alert("Enter only numerical digits");
             return false;
         }
+	Console.log('Entered');
         accountNum =  document.getElementsByName("destAccountNo");
         if (!/[^a-zA-Z]/.test(word)) {
             return false;
         }
-        
+	Console.log('Final');        
         return true;
     }
 </script>
@@ -56,7 +59,7 @@
 <h2> <p><center> Make your payment with us </center> </p></h2>
 <div class="container-fluid">
     <div><a href ="UserDetails.php"> <button class="btn btn-primary" align="right"> User Details </button> </a></div>
-<form class="form-inline" name ="barclays" method="post" action="processTransaction.php" onSubmit="return validateField()">
+<form class="form-inline" name ="barclays" action= "index.php" method="post">
 <fieldset id="fieldset">
 <legend> Online Transaction </legend>
 <table border="0.5" style="align: center;">
@@ -114,4 +117,107 @@
 
 </html>
 
+<?php
+	
+  $hostname="insanitybout.ceazc8sfrkye.ap-south-1.rds.amazonaws.com";
+  $username="insanitybout";
+  $password="insanitybout";
+  $dbname ="insanitybout";
+  
+  $con = mysqli_connect($hostname,$username,$password,$dbname);
+	function validateWithOTP() {
+	    	return true;
+	}
 
+
+	function credit($account, $amount) {
+	  
+	  $hostname="insanitybout.ceazc8sfrkye.ap-south-1.rds.amazonaws.com";
+	  $username="insanitybout";
+	  $password="insanitybout";
+	  $dbname ="insanitybout";
+	  
+	  
+	  $con = mysqli_connect($hostname,$username,$password,$dbname);
+	    
+	    $validSql1 = "select Balance from Customer where AccountNo = $account";
+	    $queryResult1 = mysqli_query($con,$validSql1);
+	    $row = mysqli_fetch_array($queryResult1);
+	    $descAccountBalance = $row['Balance'];
+	    $validSql = "update Customer set Balance = $descAccountBalance + $amount where AccountNo = $account";
+	    $queryResult = mysqli_query($con,$validSql);
+	    return true;
+	}
+	 
+
+	function debit($account, $amount) {
+  
+	  $hostname="insanitybout.ceazc8sfrkye.ap-south-1.rds.amazonaws.com";
+	  $username="insanitybout";
+	  $password="insanitybout";
+	  $dbname ="insanitybout";
+	  
+	  
+	  $con = mysqli_connect($hostname,$username,$password,$dbname);
+	    
+	    $validSql1 = "select Balance from Customer where AccountNo = $account";
+	    $queryResult1 = mysqli_query($con,$validSql1);
+	    $row = mysqli_fetch_array($queryResult1);
+	    $sourceAccountBalance = $row['Balance'];
+	    if(($sourceAccountBalance - $amount) < 0){
+	    
+		print "<script> alert('Insufficient Amount');</script>";
+		return false;
+	    }
+	    else{
+	    $validSql = "update Customer set Balance = $sourceAccountBalance - $amount where AccountNo = $account";
+	    $queryResult = mysqli_query($con,$validSql);
+	    return true;
+	    }
+	} 
+	    
+	if(isset($_POST['submit'])){
+	    
+	    $srcAccNo= $_POST['fromAccount'];
+	    $descAccNo= $_POST['destAccountNo'];
+	    $bankName= $_POST['bankName'];
+	    $Amount= $_POST['amount'];
+	    $bname="SBI";
+	    $validSql = "select Balance from Customer where AccountNo = $srcAccNo";
+	    $queryResult = mysqli_query($con,$validSql);
+	    $validSql1 = "select Balance from Customer where AccountNo = $descAccNo";
+	    $queryResult1 = mysqli_query($con,$validSql1);
+	    $row = mysqli_fetch_array($queryResult);
+	    $row1 = mysqli_fetch_array($queryResult1);
+	    $sourceAccountBalance = $row['Balance'];
+	    $destAccountBalance = $row1['Balance'];
+	    
+	    if(validateWithOTP()){
+	
+		$T_id = rand(100,100000);
+	
+		$sql = "insert into Transaction(T_id,source_accountNo,dest_accountNo,bankName,Amount,trans_date) values('$T_id','$srcAccNo','$descAccNo','$bankName','$Amount',CURDATE())";
+		$result = mysqli_query($con,$sql);
+		if($result)
+		{
+		    if(debit($srcAccNo, $Amount) && credit($descAccNo, $Amount) ) {
+			 print "<script> alert('Successfull Transaction');
+			 location.href = 'success.php';</script>";
+		    } else {
+			
+			print "<script> alert('Failed');             
+			location.href = 'failure.php';</script>";
+		    }
+		}
+		else
+		{
+		    print "<script>
+		    location.href = 'index.php';</script>";
+		    //header('location: failure.php');
+		} 
+	    
+	    }
+	 
+	}
+ 
+?>
